@@ -6,11 +6,15 @@ max=16
 skip_hook=0
 
 function quiet_cd() {
+    save_buffer=$BUFFER
+
     skip_hook=1
     zle .kill-buffer
     cd $1
     zle .accept-line
     skip_hook=0
+
+    print -z $save_buffer
 }
 
 autoload -U add-zsh-hook
