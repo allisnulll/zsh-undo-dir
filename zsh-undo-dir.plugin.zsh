@@ -20,7 +20,7 @@ function quiet_cd() {
 autoload -U add-zsh-hook
 add-zsh-hook chpwd on_cwd_change
 function on_cwd_change() {
-    if [[ $skip_hook == 1 || ${undo_dir_hist[-1]} == $PWD ]]; then
+    if [[ $skip_hook == 1 || $PWD == ${undo_dir_hist[-1]} ]]; then
         return
     fi
 
