@@ -1,63 +1,67 @@
 #!/usr/bin/env zsh
+_UD_UNDO_HIST=($PWD)
+_UD_REDO_HIST=()
+_UD_MAX=16
+_UD_SKIP_HOOK=0
 
-undo_dir_hist=($PWD)
-redo_dir_hist=()
-max=16
-skip_hook=0
-
-function quiet_cd() {
+function _quiet_cd() {
     builtin cd $1
 
-    for f in chpwd "${chpwd_functions[@]}" precmd "${precmd_functions[@]}"; do
-        [[ $+functions[$f] -ne 0 ]] && $f &>/dev/null || true
+    for f in chpwd ${chpwd_functions[@]} precmd ${precmd_functions[@]}; do
+        [[ $+functions[$f] != 0 ]] && $f &>/dev/null || true
     done
 
     zle .reset-prompt
     zle -R
 }
 
-autoload -U add-zsh-hook
-add-zsh-hook chpwd on_cwd_change
-function on_cwd_change() {
-    if [[ $skip_hook == 1 || $PWD == ${undo_dir_hist[-1]} ]]; then
+function _on_cwd_change() {
+    if [[ $_UD_SKIP_HOOK == 1 || $PWD == ${_UD_UNDO_HIST[-1]} ]]; then
         return
     fi
 
-    undo_dir_hist+=$PWD
+    _UD_UNDO_HIST+=$PWD
 
-    if [[ $PWD == ${redo_dir_hist[-1]} ]]; then
-        shift -p redo_dir_hist
+    if [[ $PWD == ${_UD_REDO_HIST[-1]} ]]; then
+        shift -p _UD_REDO_HIST
     else
-        redo_dir_hist=()
+        _UD_REDO_HIST=()
     fi
 
-    if [[ ${#undo_dir_hist[@]} -gt $max ]]; then
-        shift undo_dir_hist
-    fi
-}
-
-function undo_dir() {
-    if [[ -n ${undo_dir_hist[@]} ]]; then
-        redo_dir_hist+=${undo_dir_hist[-1]}
-        shift -p undo_dir_hist
-        quiet_cd ${undo_dir_hist[-1]}
+    if (( $#_UD_UNDO_HIST > $_UD_MAX )); then
+        shift _UD_UNDO_HIST
     fi
 }
 
-function redo_dir() {
-    if [[ -n ${redo_dir_hist[@]} ]]; then
-        undo_dir_hist+=${redo_dir_hist[-1]}
-        shift -p redo_dir_hist
-        quiet_cd ${undo_dir_hist[-1]}
+function _undo_dir() {
+    if (( $#_UD_UNDO_HIST > 1 )); then
+        _UD_REDO_HIST+=${_UD_UNDO_HIST[-1]}
+        shift -p _UD_UNDO_HIST
+        _quiet_cd ${_UD_UNDO_HIST[-1]}
     fi
 }
 
-zle -N undo_dir
-zle -N redo_dir
+function _redo_dir() {
+    if (( $#_UD_REDO_HIST > 0 )); then
+        _UD_UNDO_HIST+=${_UD_REDO_HIST[-1]}
+        shift -p _UD_REDO_HIST
+        _quiet_cd ${_UD_UNDO_HIST[-1]}
+    fi
+}
 
-bindkey -M emacs "^o" undo_dir
-bindkey -M vicmd "^o" undo_dir
-bindkey -M viins "^o" undo_dir
-bindkey -M emacs "^[[1;2R" redo_dir
-bindkey -M vicmd "^[[1;2R" redo_dir
-bindkey -M viins "^[[1;2R" redo_dir
+function zsh_undo_dir() {
+    autoload -U add-zsh-hook
+    add-zsh-hook chpwd _on_cwd_change
+
+    zle -N _undo_dir
+    zle -N _redo_dir
+
+    bindkey -M emacs "^o" _undo_dir
+    bindkey -M vicmd "^o" _undo_dir
+    bindkey -M viins "^o" _undo_dir
+    bindkey -M emacs "^[[1;2R" _redo_dir
+    bindkey -M vicmd "^[[1;2R" _redo_dir
+    bindkey -M viins "^[[1;2R" _redo_dir
+}
+
+zsh_undo_dir
