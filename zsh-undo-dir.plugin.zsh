@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 undo_dir_hist=($PWD)
 redo_dir_hist=()
@@ -6,15 +6,14 @@ max=16
 skip_hook=0
 
 function quiet_cd() {
-    save_buffer=$BUFFER
+    builtin cd $1
 
-    skip_hook=1
-    zle .kill-buffer
-    cd $1
-    zle .accept-line
-    skip_hook=0
+    for f in chpwd "${chpwd_functions[@]}" precmd "${precmd_functions[@]}"; do
+        [[ $+functions[$f] -ne 0 ]] && $f &>/dev/null || true
+    done
 
-    print -z $save_buffer
+    zle .reset-prompt
+    zle -R
 }
 
 autoload -U add-zsh-hook
