@@ -5,13 +5,19 @@ Undo and redo current working directory changes.
 
 ## How to Install
 ### Manually
-1. Clone the repository and source the script at the end of your `.zshrc` file. Can be stored wherever you want as long as you source correctly.
+1. Change your directory to wherever you would like to install the plugin.
 
     *Example*:
+    ```sh
+    cd ~/.zsh/plugins
+    ```
+
+2. Run these commands:
     ```sh
     git clone https://github.com/allisnulll/zsh-undo-dir
     echo "source $PWD/zsh-undo-dir/zsh-undo-dir.plugin.zsh" >> $HOME/.zshrc
     ```
+    *(All this does is clone the repository and source the script at the end of your `.zshrc` file)*
 
 ### With a Plugin Manager
 #### Zinit
