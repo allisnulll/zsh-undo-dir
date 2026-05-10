@@ -59,9 +59,9 @@ function zsh_undo_dir() {
     bindkey -M emacs "^o" _undo_dir
     bindkey -M vicmd "^o" _undo_dir
     bindkey -M viins "^o" _undo_dir
-    bindkey -M emacs "^[[1;2R" _redo_dir
-    bindkey -M vicmd "^[[1;2R" _redo_dir
-    bindkey -M viins "^[[1;2R" _redo_dir
+    bindkey -M emacs "^[[1;2P" _redo_dir
+    bindkey -M vicmd "^[[1;2P" _redo_dir
+    bindkey -M viins "^[[1;2P" _redo_dir
 }
 
 zsh_undo_dir

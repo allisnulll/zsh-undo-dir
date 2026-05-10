@@ -36,9 +36,9 @@ zinit light allisnulll/zsh-undo-dir
 bindkey -M emacs "^o" undo_dir
 bindkey -M vicmd "^o" undo_dir
 bindkey -M viins "^o" undo_dir
-bindkey -M emacs "^[[1;2R" redo_dir
-bindkey -M vicmd "^[[1;2R" redo_dir
-bindkey -M viins "^[[1;2R" redo_dir
+bindkey -M emacs "^[[1;2P" redo_dir
+bindkey -M vicmd "^[[1;2P" redo_dir
+bindkey -M viins "^[[1;2P" redo_dir
 ```
 
 The default keybinds are meant to be similar to the keymaps for jumplists in **Vim**, but can be mapped to whatever you want.
@@ -56,7 +56,7 @@ local config = wezterm.config_builder()
 config.keys = {{
     key = "i",
     mods = "CTRL",
-    action = wezterm.action.SendKey({ key = "F13" }),
+    action = wezterm.action.SendString("\x1b[1;2P"),
 }}
 
 return config
